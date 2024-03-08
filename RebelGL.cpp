@@ -1,5 +1,7 @@
 #include <Windows.h>
 #include <stdint.h>
+#include <iostream>
+// #include "Window.cpp"
 
 #define UNICODE
 #define _UNICODE
@@ -14,20 +16,21 @@
 // TYPES & STRUCTS
 typedef uint32_t u32;
 
-class WinGL
+using namespace std;
+class RebelGL
 {
 private:
     /* data */
 public:
-    WinGL(HWND window);
-    ~WinGL();
+    RebelGL(Window window);
+    ~RebelGL();
 
+    void *winMemory;  // Memory that stores window pixel data
     RECT rect;
     u32 *pixel;
     HDC hdc;
     BITMAPINFO bitmap_info;
 
-    void *memory;
     int screen_width;
     int screen_height;
 
@@ -37,22 +40,18 @@ public:
     void fillRect(int x, int y, int width, int height, u32 color);
 };
 
-WinGL::WinGL(HWND window)
+RebelGL::RebelGL(Window window)
 {
-    hdc = GetDC(window); // Device context
-    GetClientRect(window, &rect);
+    hdc = GetDC(window.window); // Device context
+    GetClientRect(window.window, &rect);
 
-    screen_width = rect.left - rect.right;
+    typedef struct tagBITMAPINFO {
+        BITMAPINFOHEADER bmiHeader;
+        RGBQUAD          bmiColors[1];
+    } BITMAPINFO, *LPBITMAPINFO, *PBITMAPINFO;
+
+    screen_width = rect.right - rect.left;
     screen_height = rect.bottom - rect.top;
-
-    memory = VirtualAlloc(
-        0,
-        screen_width * screen_height * sizeof(unsigned int),
-        MEM_RESERVE | MEM_COMMIT,
-        PAGE_READWRITE 
-    );
-
-    u32 *pixel = (u32 *)memory;  // Address to start(1st 32 bits) of memory
 
     bitmap_info.bmiHeader.biSize = sizeof(bitmap_info.bmiHeader);
     bitmap_info.bmiHeader.biWidth = screen_width;
@@ -60,13 +59,25 @@ WinGL::WinGL(HWND window)
     bitmap_info.bmiHeader.biPlanes = 1;
     bitmap_info.bmiHeader.biBitCount = 32;
     bitmap_info.bmiHeader.biCompression = BI_RGB;
+
+    // winMemory = VirtualAlloc(
+    //     0,
+    //     screen_width * screen_height * sizeof(unsigned int),
+    //     MEM_RESERVE | MEM_COMMIT,
+    //     PAGE_READWRITE 
+    // );
+
+    winMemory = window.memory;
+
+    pixel = (u32 *)winMemory;  // Address to start(1st 32 bits) of memory
 }
 
-WinGL::~WinGL()
+RebelGL::~RebelGL()
 {  // Destructor
+    VirtualFree(winMemory, 0, MEM_RELEASE);
 }
 
-void WinGL::update() 
+void RebelGL::update() 
 {
     StretchDIBits(
         hdc,  // Handle device context
@@ -78,33 +89,51 @@ void WinGL::update()
         0,
         screen_width,
         screen_height,
-        memory,  // Memory
+        winMemory,  // Memory
         &bitmap_info,
         DIB_RGB_COLORS,
         SRCCOPY
     );
 }
 
-void WinGL::fill_screen(u32 color) {
-    for(int pixel_num = 0; pixel_num < screen_width * screen_height; pixel_num++) {
+void RebelGL::fill_screen(u32 color) {
+    int total_pixels = screen_width * screen_height;
+
+    for(int pixel_num = 0; pixel_num < total_pixels; pixel_num++) {
         // Fill entire screen
         *pixel++ = color;  // Go to next pixel address then change color value
     }
 }
 
-void WinGL::drawPixel(int x, int y, u32 color) 
+// void RebelGL::fill_screen(u32 color) {
+//     int total_pixels = screen_width * screen_height;
+
+//     for(int i = 0; i < total_pixels; ++i) {
+//         pixel[i] = color;
+//     }
+// }
+
+void RebelGL::drawPixel(int x, int y, u32 color) 
 {
-    for(int pixel_num = 0; pixel_num < screen_width * screen_height; pixel_num++) {
-        int inverted_y = screen_height - (y + 1);  // To make y axis point down
-        int p = inverted_y * screen_width + x;  // y * s_screen_width + x
-        if(pixel_num== p) {
-            *pixel = color;
-        }
-        *pixel++;  // Go to next pixel address
+    if (x >= 0 && x < screen_width && y >= 0 && y < screen_height) {
+        int index = y * screen_width + x;
+        pixel[index] = color;
     }
 }
 
-void WinGL::fillRect(int x, int y, int width, int height, u32 color) 
+// void RebelGL::drawPixel(int x, int y, u32 color) 
+// {
+//     for(int pixel_num = 0; pixel_num < screen_width * screen_height; pixel_num++) {
+//         int inverted_y = screen_height - (y + 1);  // To make y axis point down
+//         int p = inverted_y * screen_width + x;  // y * s_screen_width + x
+//         if(pixel_num== p) {
+//             *pixel = color;
+//         }
+//         *pixel++;  // Go to next pixel address
+//     }
+// }
+
+void RebelGL::fillRect(int x, int y, int width, int height, u32 color) 
 {
     for(int pixel_num = 0; pixel_num < screen_width * screen_height; pixel_num++) {
         int inverted_y = screen_height - (y + 1);  // To make y axis point down

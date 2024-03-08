@@ -6,7 +6,7 @@
 #include <iostream>
 
 #include "Window.cpp"
-#include "WinGL.cpp"
+#include "RebelGL.cpp"
 #include "Utils.cpp"
 
 typedef uint32_t u32;
@@ -38,21 +38,21 @@ int WinMain(
     LPSTR lpCmdLine,  // Argument passed when running program in the command line
     int nShowCmd  // How to show the program
 ) {
-    Window mainWindow(hInstance);
-    // gameWindow.Wndproc = Wndproc;
+    Window mainWindow(hInstance, CW_USEDEFAULT, CW_USEDEFAULT);
 
-    if (mainWindow.Create(L"Game") != 0)
+    if (mainWindow.Create(L"Rebel Engine") != 0)
     {
         // Window creation failed
-        std::cout<<"Failed to open window\n"<< Utils::GetLastErrorAsString();
+        std::cout<<"Failed to open window\nError: "<<Utils::GetLastErrorAsString();
         return -1;
     }
 
-    while(globalRunning) {
-        // fill_screen(pixel, BLACK);
-        // fill_rect(100, 100, 50, 50, rect, pixel, 0x1F1F1F);
+    RebelGL rgl(mainWindow);
 
+    // Application loop
+    while(globalRunning) {
         MSG msg;
+        // Check for messages from the window
         while(PeekMessage(&msg, mainWindow.window, 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);  // Translates key code when key is pressed to actual character
             DispatchMessage(&msg);
@@ -63,7 +63,9 @@ int WinMain(
             }
         }
 
-        // gl.update()
+        // Main Activities
+        rgl.fill_screen(RED);
+        rgl.update();
     }
     
     return 0;

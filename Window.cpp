@@ -13,20 +13,25 @@ private:
     HINSTANCE hInstance;
     WNDCLASS window_class;
 public:
-    Window(HINSTANCE hInstance);
+    Window(HINSTANCE hInstance, int width, int height);
     ~Window();
 
     HWND window;
+    void *memory;
+    int screen_width;
+    int screen_height;
+    
     wchar_t CLASS_NAME[];
-
     int Create(const wchar_t* title);
     static LRESULT Wndproc(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
 };
 
-Window::Window(HINSTANCE hInstance)
+Window::Window(HINSTANCE hInstance, int width, int height)
 : hInstance(hInstance), window(nullptr)
-{
+{    
     this->hInstance = hInstance;
+    this->screen_width = width;
+    this->screen_height = height;
     wcscat(CLASS_NAME, L"GameWindowClass");
 
     window_class = { 0 };
@@ -44,7 +49,8 @@ Window::Window(HINSTANCE hInstance)
 Window::~Window()
 {
     // Destructor
-    cout<<"Closing window";
+    cout<<"Closing Application...";
+    VirtualFree(memory, 0, MEM_RELEASE);
 }
 
 int Window::Create(const wchar_t* title)
@@ -57,12 +63,19 @@ int Window::Create(const wchar_t* title)
         WS_OVERLAPPEDWINDOW|WS_VISIBLE,
         CW_USEDEFAULT,  // X position of window
         CW_USEDEFAULT,  // Y position of window
-        CW_USEDEFAULT,  // screen_width
-        CW_USEDEFAULT,  // screen_height
+        screen_width,  // screen_width
+        screen_height,  // screen_height
         0,
         0,
         hInstance,
         0
+    );
+
+    memory = VirtualAlloc(
+        0,
+        this->screen_width * this->screen_height * sizeof(unsigned int),
+        MEM_RESERVE | MEM_COMMIT,
+        PAGE_READWRITE 
     );
 
     if (window == nullptr)
@@ -75,18 +88,22 @@ int Window::Create(const wchar_t* title)
     return 0;
 }
 
-LRESULT CALLBACK Window::Wndproc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK Window::Wndproc(
+    HWND window,
+    UINT message, 
+    WPARAM wParam, 
+    LPARAM lParam
+)
 {
     // Window message handling
+    LRESULT result;
     switch (message)
     {
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
-    // case WM_CLOSE:
-    //     break;
     default:
-        return DefWindowProc(window, message, wParam, lParam);
+        result = DefWindowProc(window, message, wParam, lParam);
     }
-    return 0;
+    return result;
 }

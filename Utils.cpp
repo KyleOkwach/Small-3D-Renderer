@@ -12,14 +12,6 @@ public:
     static std::string GetLastErrorAsString();
 };
 
-Utils::Utils(/* args */)
-{
-}
-
-Utils::~Utils()
-{
-}
-
 //Returns the last Win32 error, in string format. Returns an empty string if there is no error.
 std::string Utils::GetLastErrorAsString()
 {

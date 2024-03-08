@@ -1,3 +1,6 @@
 @echo off
-g++ main.cpp -o Main -lcomdlg32 -lgdi32
-Main
+mkdir build
+pushd build
+g++ ../main.cpp -o Rebel3D -lcomdlg32 -lgdi32
+.\Rebel3D
+popd
