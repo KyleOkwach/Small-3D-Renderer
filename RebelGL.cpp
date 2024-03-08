@@ -60,13 +60,6 @@ RebelGL::RebelGL(Window window)
     bitmap_info.bmiHeader.biBitCount = 32;
     bitmap_info.bmiHeader.biCompression = BI_RGB;
 
-    // winMemory = VirtualAlloc(
-    //     0,
-    //     screen_width * screen_height * sizeof(unsigned int),
-    //     MEM_RESERVE | MEM_COMMIT,
-    //     PAGE_READWRITE 
-    // );
-
     winMemory = window.memory;
 
     pixel = (u32 *)winMemory;  // Address to start(1st 32 bits) of memory
