@@ -38,7 +38,7 @@ int WinMain(
     LPSTR lpCmdLine,  // Argument passed when running program in the command line
     int nShowCmd  // How to show the program
 ) {
-    Window mainWindow(hInstance, CW_USEDEFAULT, CW_USEDEFAULT);
+    Window mainWindow(hInstance, 640, 640);
 
     if (mainWindow.Create(L"Rebel Engine") != 0)
     {
@@ -47,7 +47,7 @@ int WinMain(
         return -1;
     }
 
-    RebelGL rgl(mainWindow);
+    RebelGL rgl(mainWindow.window);
 
     // Application loop
     while(globalRunning) {
@@ -64,7 +64,8 @@ int WinMain(
         }
 
         // Main Activities
-        rgl.fill_screen(RED);
+        rgl.fill_screen(0xFF0000);
+        rgl.drawPixel(10, 10, RED);
         rgl.update();
     }
     

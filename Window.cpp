@@ -17,11 +17,14 @@ public:
     ~Window();
 
     HWND window;
-    void *memory;
-    int screen_width;
-    int screen_height;
+    RECT window_rect;
+    int window_width;
+    int window_height;
     
-    wchar_t CLASS_NAME[];
+    // wchar_t CLASS_NAME[];
+    static const int MAX_CLASS_NAME_LENGTH = 256;
+    wchar_t CLASS_NAME[MAX_CLASS_NAME_LENGTH]; // Fixed-size array
+
     int Create(const wchar_t* title);
     static LRESULT Wndproc(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
 };
@@ -30,14 +33,29 @@ Window::Window(HINSTANCE hInstance, int width, int height)
 : hInstance(hInstance), window(nullptr)
 {    
     this->hInstance = hInstance;
-    this->screen_width = width;
-    this->screen_height = height;
+
+    window_rect.left = 0;
+    window_rect.top = 0;
+    window_rect.right = width;
+    window_rect.bottom = height;
+
+    AdjustWindowRectEx(
+        &window_rect,
+        WS_OVERLAPPEDWINDOW,
+        0,
+        0
+    );
+
+    this->window_width = window_rect.right - window_rect.left;
+    this->window_height = window_rect.bottom - window_rect.top;
+
     wcscat(CLASS_NAME, L"GameWindowClass");
 
     window_class = { 0 };
     window_class.lpfnWndProc = Wndproc;  // Handles messages sent to window
     window_class.hInstance = hInstance;
     window_class.lpszClassName = CLASS_NAME;
+    window_class.hCursor = LoadCursor(0, IDC_CROSS);  // Change cursos
 
     if (!RegisterClass(&window_class))
     {
@@ -50,7 +68,6 @@ Window::~Window()
 {
     // Destructor
     cout<<"Closing Application...";
-    VirtualFree(memory, 0, MEM_RELEASE);
 }
 
 int Window::Create(const wchar_t* title)
@@ -60,32 +77,25 @@ int Window::Create(const wchar_t* title)
         CLASS_NAME,
         title,
         // L"Game",
-        WS_OVERLAPPEDWINDOW|WS_VISIBLE,
+        WS_OVERLAPPEDWINDOW | WS_VISIBLE,
         CW_USEDEFAULT,  // X position of window
         CW_USEDEFAULT,  // Y position of window
-        screen_width,  // screen_width
-        screen_height,  // screen_height
+        window_width,  // window_width
+        window_height,  // window_height
         0,
         0,
         hInstance,
         0
     );
 
-    memory = VirtualAlloc(
-        0,
-        this->screen_width * this->screen_height * sizeof(unsigned int),
-        MEM_RESERVE | MEM_COMMIT,
-        PAGE_READWRITE 
-    );
-
     if (window == nullptr)
     {
         // Window creation failed
         return GetLastError();
+    } else {
+        // Window creation successful
+        return 0;
     }
-
-    // Window creation successful
-    return 0;
 }
 
 LRESULT CALLBACK Window::Wndproc(
