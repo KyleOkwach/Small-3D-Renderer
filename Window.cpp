@@ -72,7 +72,7 @@ Window::~Window()
 
 int Window::Create(const wchar_t* title)
 {
-    HWND window =  CreateWindowEx(
+    window =  CreateWindowEx(
         0,
         CLASS_NAME,
         title,

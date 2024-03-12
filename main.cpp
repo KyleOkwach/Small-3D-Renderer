@@ -10,27 +10,9 @@
 #include "Utils.cpp"
 
 typedef uint32_t u32;
-int globalRunning = 1;
+int globalRunning = true;
 int screen_width = 0;
 int screen_height = 0;
-
-LRESULT Wndproc(
-  HWND window,
-  UINT message,
-  WPARAM wParam,
-  LPARAM lParam
-) {
-    LRESULT result;
-    switch(message) {
-        case WM_CLOSE:
-            globalRunning = 0;
-            break;
-        default:
-            result = DefWindowProc(window, message, wParam, lParam);
-    }
-
-    return result;
-}
 
 int WinMain(
     HINSTANCE hInstance,  // Handle instance of the program
@@ -59,13 +41,20 @@ int WinMain(
 
             // Check if user quit the window
             if (msg.message == WM_QUIT) {
-                globalRunning = 0;  // End the main loop
+                globalRunning = false;  // End the main loop
             }
         }
 
         // Main Activities
-        rgl.fill_screen(0xFF0000);
-        rgl.drawPixel(10, 10, RED);
+        rgl.fill_screen(RED);
+
+        rgl.drawPixel(10, 10, WHITE);
+        rgl.drawPixel(11, 11, WHITE);
+        rgl.drawPixel(12, 12, WHITE);
+        rgl.drawPixel(13, 13, WHITE);
+
+        // rgl.fillRect(30, 40, 15, 15, GREEN);
+
         rgl.update();
     }
     
