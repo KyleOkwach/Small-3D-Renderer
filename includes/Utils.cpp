@@ -1,19 +1,6 @@
-#include <Windows.h>
-#include <iostream>
+#include "Utils.h"
 
-class Utils
-{
-private:
-    /* data */
-public:
-    Utils(/* args */);
-    ~Utils();
-
-    static std::string GetLastErrorAsString();
-};
-
-//Returns the last Win32 error, in string format. Returns an empty string if there is no error.
-std::string Utils::GetLastErrorAsString()
+std::string GetLastErrorAsString()
 {
     //Get the error message ID, if any.
     DWORD errorMessageID = ::GetLastError();

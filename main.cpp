@@ -5,9 +5,10 @@
 #include <stdint.h>
 #include <iostream>
 
-#include "Window.cpp"
-#include "RebelGL.cpp"
-#include "Utils.cpp"
+#include "gl/Window.h"
+#include "gl/RebelGL.h"
+
+#include "includes/Utils.h"
 
 typedef uint32_t u32;
 int globalRunning = true;
@@ -25,7 +26,7 @@ int WinMain(
     if (mainWindow.Create(L"Rebel Engine") != 0)
     {
         // Window creation failed
-        std::cout<<"Failed to open window\nError: "<<Utils::GetLastErrorAsString();
+        std::cout<<"Failed to open window\nError: "<< GetLastErrorAsString();
         return -1;
     }
 
@@ -45,15 +46,16 @@ int WinMain(
             }
         }
 
-        // Main Activities
-        rgl.fill_screen(RED);
+        // ________MAIN________
+        // Your code goes here
+        rgl.fill_screen(0x1F1F1F);
 
         rgl.drawPixel(10, 10, WHITE);
         rgl.drawPixel(11, 11, WHITE);
         rgl.drawPixel(12, 12, WHITE);
         rgl.drawPixel(13, 13, WHITE);
 
-        // rgl.fillRect(30, 40, 15, 15, GREEN);
+        rgl.fillRect(30, 40, 15, 15, GREEN);
 
         rgl.update();
     }

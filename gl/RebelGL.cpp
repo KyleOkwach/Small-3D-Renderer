@@ -1,44 +1,4 @@
-#include <Windows.h>
-#include <stdint.h>
-#include <iostream>
-
-#define UNICODE
-#define _UNICODE
-
-// COLORS
-#define RED 0xFF0000
-#define GREEN 0x00FF00
-#define BLUE 0x0000FF
-#define WHITE 0xFFFFFF
-#define BLACK 0x000000
-
-// TYPES & STRUCTS
-typedef uint32_t u32;
-
-using namespace std;
-class RebelGL
-{
-private:
-    /* data */
-public:
-    RebelGL(HWND window);
-    ~RebelGL();
-
-    void *winMemory;  // Memory that stores window pixel data
-    HWND window;
-    RECT rect;
-    u32 *pixel;
-    HDC hdc;
-    BITMAPINFO bitmap_info;
-
-    int screen_width;
-    int screen_height;
-
-    void update();
-    void fill_screen(u32 color);
-    void drawPixel(int x, int y, u32 color);
-    void fillRect(int x, int y, int width, int height, u32 color);
-};
+#include "RebelGL.h"
 
 RebelGL::RebelGL(HWND window)
 {
@@ -101,10 +61,6 @@ void RebelGL::update()
     );
 }
 
-void RebelGL::fill_screen(u32 color) {
-    std::fill(pixel, pixel + screen_width * screen_height, color);
-}
-
 void RebelGL::drawPixel(int x, int y, u32 color) 
 {
     if (x >= 0 && x < screen_width && y >= 0 && y < screen_height) {
@@ -114,24 +70,32 @@ void RebelGL::drawPixel(int x, int y, u32 color)
     }
 }
 
+void RebelGL::fill_screen(u32 color) {
+    std::fill(pixel, pixel + screen_width * screen_height, color);
+}
+
 void RebelGL::fillRect(int x, int y, int width, int height, u32 color) 
 {
-    for(int pixel_num = 0; pixel_num < screen_width * screen_height; pixel_num++) {
-        int inverted_y = screen_height - (y + 1);  // To make y axis point down
-        // int p = inverted_y * screen_width + x;  // y * s_screen_width + x
+    // Ensure x, y, width, and height are within bounds
+    if (x < 0) { width += x; x = 0; }
+    if (y < 0) { height += y; y = 0; }
 
-        int top = inverted_y;
-        int bottom = top - height;
-        int left = x;
-        int right = x + width;
-        if(
-            pixel_num / screen_width < top &&
-            pixel_num / screen_width > bottom &&
-            pixel_num % screen_width > left &&
-            pixel_num % screen_width < right
-        ) {
-            *pixel = color;
-        }
-        *pixel++;  // Go to next pixel address
+    if (x + width > screen_width) {
+        width = screen_width - x;
+    }
+    if (y + height > screen_height) {
+        height = screen_height - y;
+    }
+
+    // Adjust y-coordinate for inverted y-axis
+    int inverted_y = screen_height - y - 1;
+
+    // Calculate starting position in memory
+    u32* start_pixel = pixel + (inverted_y * screen_width + x);
+
+    // Fill the rectangle
+    for (int row = 0; row < height; ++row) {
+        std::fill(start_pixel, start_pixel + width, color);
+        start_pixel += screen_width;
     }
 }
