@@ -39,6 +39,10 @@ Window::~Window()
 {
     // Destructor
     cout<<"Closing Application...";
+    if (window != nullptr)
+    {
+        DestroyWindow(window);
+    }
 }
 
 int Window::Create(const wchar_t* title)

@@ -24,7 +24,7 @@ class RebelGL
 private:
     /* data */
 public:
-    RebelGL(HWND window);
+    RebelGL(HWND window, bool invertY = false);
     ~RebelGL();
 
     void *winMemory;  // Memory that stores window pixel data
@@ -36,10 +36,12 @@ public:
 
     int screen_width;
     int screen_height;
+    bool invertY;
 
     void update();
     void fill_screen(u32 color);
-    void drawPixel(int x, int y, u32 color);
+    void drawPixel(int x, int y, u32 color, int size = 1);
+    void drawLine(int ax, int ay, int bx, int by, u32 color, int thickness = 1);
     void fillRect(int x, int y, int width, int height, u32 color);
 };
 

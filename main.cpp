@@ -4,11 +4,17 @@
 #include <Windows.h>
 #include <stdint.h>
 #include <iostream>
-
-#include "gl/Window.h"
-#include "gl/RebelGL.h"
+#include <vector>
 
 #include "includes/Utils.h"
+#include "includes/Window.h"
+
+#include "includes/math/RVector.h"
+
+#include "includes/gl/RebelGL.h"
+
+#include "includes/gl/3D/Tri.h"
+#include "includes/gl/3D/Mesh.h"
 
 typedef uint32_t u32;
 int globalRunning = true;
@@ -30,7 +36,37 @@ int WinMain(
         return -1;
     }
 
-    RebelGL rgl(mainWindow.window);
+    RebelGL rgl(mainWindow.window, true);
+
+    // ________Initializations________
+    std::vector<RVector> points = {
+        RVector(50, 50),
+        RVector(50, 150),
+        RVector(150, 150),
+        RVector(150, 50)
+    };
+
+    Mesh cube;
+    cube.tris = {
+        // Front face
+        {RVector(0, 0), RVector(1, 0), RVector(1, 1)},
+        {RVector(0, 0), RVector(1, 1), RVector(0, 1)},
+        // Back face
+        {RVector(0, 1), RVector(1, 1), RVector(1, 10)},
+        {RVector(0, 1), RVector(1, 10), RVector(0, 10)},
+        // Left face
+        {RVector(0, 0), RVector(0, 1), RVector(0, 10)},
+        {RVector(0, 0), RVector(0, 10), RVector(0, 1)},
+        // Right face
+        {RVector(1, 0), RVector(1, 1), RVector(1, 10)},
+        {RVector(1, 0), RVector(1, 10), RVector(1, 1)},
+        // Top face
+        {RVector(0, 0), RVector(1, 0), RVector(1, 10)},
+        {RVector(0, 0), RVector(1, 10), RVector(0, 10)},
+        // Bottom face
+        {RVector(0, 1), RVector(1, 1), RVector(1, 10)},
+        {RVector(0, 1), RVector(1, 10), RVector(0, 10)}
+    };
 
     // Application loop
     while(globalRunning) {
@@ -50,12 +86,17 @@ int WinMain(
         // Your code goes here
         rgl.fill_screen(0x1F1F1F);
 
-        rgl.drawPixel(10, 10, WHITE);
-        rgl.drawPixel(11, 11, WHITE);
-        rgl.drawPixel(12, 12, WHITE);
-        rgl.drawPixel(13, 13, WHITE);
+        for(RVector i : points) {
+            rgl.drawPixel(static_cast<int>(i.x), static_cast<int>(i.y), GREEN, 10);
+        }
+        rgl.drawLine(100, 350, 400, 100, GREEN, 5);
+        rgl.drawLine(100, 350, 2000, 2000, GREEN, 5);
 
-        rgl.fillRect(30, 40, 15, 15, GREEN);
+        // for(auto tri : cube.tris) {
+        //     rgl.drawPixel(static_cast<int>(tri[0].x), static_cast<int>(i.y), GREEN, 10);
+        //     rgl.drawPixel(static_cast<int>(i.x), static_cast<int>(i.y), GREEN, 10);
+        //     rgl.drawPixel(static_cast<int>(i.x), static_cast<int>(i.y), GREEN, 10);
+        // }
 
         rgl.update();
     }

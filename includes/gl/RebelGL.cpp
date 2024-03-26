@@ -1,8 +1,9 @@
 #include "RebelGL.h"
 
-RebelGL::RebelGL(HWND window)
+RebelGL::RebelGL(HWND window, bool invertY)
 {
     this->window = window;
+    this->invertY = invertY;
     
     hdc = GetDC(window); // Device context
     GetClientRect(window, &rect);
@@ -61,12 +62,21 @@ void RebelGL::update()
     );
 }
 
-void RebelGL::drawPixel(int x, int y, u32 color) 
+void RebelGL::drawPixel(int x, int y, u32 color, int size) 
 {
-    if (x >= 0 && x < screen_width && y >= 0 && y < screen_height) {
-        int inverted_y = screen_height - (y + 1);  // To make y axis point down
-        int p = inverted_y * screen_width + x;
-        pixel[p] = color;
+    fillRect(x, y, size, size, color);
+}
+
+void RebelGL::drawLine(int ax, int ay, int bx, int by, u32 color, int thickness)
+{
+    int ty = ay;  // Temporary loop values
+    for(int tx = ax; tx <= bx; tx++) {
+        if(tx <= screen_width && tx > 0 &&
+            ty <= screen_height && ty > 0
+        ) {
+            ty = ay+ (((tx-ax) * (by-ay))/ (bx-ax));
+            drawPixel(tx, ty, color, thickness);
+        } else { break; }
     }
 }
 
@@ -88,14 +98,20 @@ void RebelGL::fillRect(int x, int y, int width, int height, u32 color)
     }
 
     // Adjust y-coordinate for inverted y-axis
-    int inverted_y = screen_height - y - 1;
+    y = invertY ? y : screen_height - y - 1;
 
     // Calculate starting position in memory
-    u32* start_pixel = pixel + (inverted_y * screen_width + x);
+    u32* start_pixel = pixel + (y * screen_width + x);
 
     // Fill the rectangle
     for (int row = 0; row < height; ++row) {
-        std::fill(start_pixel, start_pixel + width, color);
-        start_pixel += screen_width;
+        if(start_pixel >= pixel &&
+            start_pixel < pixel + screen_width * screen_height
+        ) {
+            std::fill(start_pixel, start_pixel + width, color);
+            start_pixel = invertY ? start_pixel - screen_width : start_pixel + screen_width;
+        } else {
+            break;
+        }
     }
 }
