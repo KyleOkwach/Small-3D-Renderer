@@ -41,9 +41,9 @@ int WinMain(
     // ________Initializations________
     std::vector<RVector> points = {
         RVector(50, 50),
-        RVector(50, 150),
+        RVector(150, 50),
         RVector(150, 150),
-        RVector(150, 50)
+        RVector(50, 150)
     };
 
     Mesh cube;
@@ -86,11 +86,27 @@ int WinMain(
         // Your code goes here
         rgl.fill_screen(0x1F1F1F);
 
-        for(RVector i : points) {
-            rgl.drawPixel(static_cast<int>(i.x), static_cast<int>(i.y), GREEN, 10);
-        }
-        rgl.drawLine(100, 350, 400, 100, GREEN, 5);
-        rgl.drawLine(100, 350, 2000, 2000, GREEN, 5);
+        RVector va, vb;
+        // for(int i = 0; i < points.size(); i+=2) {
+        //     va = points[i];
+        //     vb = points[i+1];
+        //     rgl.drawPixel(static_cast<int>(va.x), static_cast<int>(va.y), GREEN, 10);
+        //     rgl.drawPixel(static_cast<int>(vb.x), static_cast<int>(vb.y), GREEN, 10);
+        //     rgl.drawLine(
+        //         static_cast<int>(va.x),
+        //         static_cast<int>(va.y),
+        //         static_cast<int>(vb.x),
+        //         static_cast<int>(vb.y),
+        //         WHITE,
+        //         3
+        //     );
+        // }
+
+        // for(RVector i : points) {
+        //     rgl.drawPixel(static_cast<int>(i.x), static_cast<int>(i.y), GREEN, 10);
+        // }
+        // rgl.drawLine(100, 350, 400, 100, GREEN, 5);
+        // rgl.drawLine(100, 350, 2000, 2000, GREEN, 5);
 
         // for(auto tri : cube.tris) {
         //     rgl.drawPixel(static_cast<int>(tri[0].x), static_cast<int>(i.y), GREEN, 10);
@@ -100,6 +116,6 @@ int WinMain(
 
         rgl.update();
     }
-    
+
     return 0;
 }

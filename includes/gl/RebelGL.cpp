@@ -69,6 +69,12 @@ void RebelGL::drawPixel(int x, int y, u32 color, int size)
 
 void RebelGL::drawLine(int ax, int ay, int bx, int by, u32 color, int thickness)
 {
+    // Swap points if bx < ax
+    if (bx < ax) {
+        std::swap(ax, bx);
+        std::swap(ay, by);
+    }
+    
     int ty = ay;  // Temporary loop values
     for(int tx = ax; tx <= bx; tx++) {
         if(tx <= screen_width && tx > 0 &&
